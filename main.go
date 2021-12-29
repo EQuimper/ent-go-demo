@@ -45,9 +45,24 @@ func main() {
 
 	_, err = client.User.UpdateOne(user).
 		SetUsername("ryan5").
-		//SetPassword("password123").
+		SetPassword("password123").
 		Save(ctx)
 	if err != nil {
 		panic(err)
+	}
+
+	_, err = client.Project.
+		Create().
+		SetName("my project").
+		SetDescription("a description").
+		SetUser(user).
+		Save(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	projects := user.QueryProjects().AllX(ctx)
+	for _, project := range projects {
+		log.Println(project.String())
 	}
 }
