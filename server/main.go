@@ -7,12 +7,15 @@ import (
 	_ "ent-go-demo/ent/runtime"
 	"ent-go-demo/ent/user"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-	"log"
-	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -25,6 +28,42 @@ const (
 
 type Server struct {
 	DB *ent.Client
+}
+
+func (s *Server) Login(c *fiber.Ctx) error {
+	type LoginInput struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	var input LoginInput
+
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Error on login request", "data": err})
+	}
+
+	u, err := s.DB.User.Query().Where(user.EmailEQ(input.Email)).First(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "bad email/password combination"})
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(input.Password)); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "bad email/password combination"})
+	}
+
+	t, err := createJWTToken(u)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "logged in",
+		"data": map[string]interface{}{
+			"user":         u,
+			"access_token": t,
+		},
+	})
 }
 
 func (s *Server) Register(c *fiber.Ctx) error {
@@ -67,18 +106,18 @@ func (s *Server) Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Error register", "data": err})
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = u.Username
-	claims["email"] = u.Email
-	claims["id"] = u.ID
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-
-	t, err := token.SignedString([]byte("mysecret"))
+	t, err := createJWTToken(u)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
+
+	cookie := new(fiber.Cookie)
+	cookie.Name = "authorization"
+	cookie.Value = t
+	cookie.Expires = time.Now().Add(time.Hour * 72)
+	cookie.HTTPOnly = true
+
+	c.Cookie(cookie)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -88,6 +127,18 @@ func (s *Server) Register(c *fiber.Ctx) error {
 			"access_token": t,
 		},
 	})
+}
+
+func createJWTToken(u *ent.User) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["username"] = u.Username
+	claims["email"] = u.Email
+	claims["id"] = u.ID
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+	return token.SignedString([]byte("mysecret"))
 }
 
 func getUserID(c *fiber.Ctx) (uuid.UUID, error) {
@@ -166,16 +217,19 @@ func main() {
 
 	app := fiber.New()
 
+	app.Use(cors.New())
+
 	v1 := app.Group("/api/v1")
 
 	auth := v1.Group("/auth")
 
 	auth.Post("/register", server.Register)
+	auth.Post("/login", server.Login)
 
 	v1.Get("/projects", Protected(), server.GetProjects)
 	v1.Post("/projects", Protected(), server.CreateProject)
 
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":4000"))
 	//
 	//user, err := client.User.
 	//	Create().
