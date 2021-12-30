@@ -26,11 +26,15 @@ function Nav({ children }: Props) {
         <Flex>
           <Box mr={2}>
             <NextLink href="/register" passHref>
-              <Link as={Button}>Register</Link>
+              <Link _hover={{ textDecoration: "none" }} as={Button}>
+                Register
+              </Link>
             </NextLink>
           </Box>
           <NextLink href="/login" passHref>
-            <Link as={Button}>Login</Link>
+            <Link _hover={{ textDecoration: "none" }} as={Button}>
+              Login
+            </Link>
           </NextLink>
         </Flex>
       </Flex>

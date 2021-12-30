@@ -12,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -56,6 +57,8 @@ func (s *Server) Login(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
+	setAuthCookie(c, t)
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "logged in",
@@ -64,6 +67,18 @@ func (s *Server) Login(c *fiber.Ctx) error {
 			"access_token": t,
 		},
 	})
+}
+
+func setAuthCookie(c *fiber.Ctx, token string) {
+	cookie := new(fiber.Cookie)
+	cookie.Name = "authorization"
+	cookie.Value = token
+	cookie.Expires = time.Now().Add(time.Hour * 72)
+	cookie.HTTPOnly = true
+	cookie.SameSite = "lax"
+	cookie.Domain = "localhost"
+
+	c.Cookie(cookie)
 }
 
 func (s *Server) Register(c *fiber.Ctx) error {
@@ -111,13 +126,7 @@ func (s *Server) Register(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	cookie := new(fiber.Cookie)
-	cookie.Name = "authorization"
-	cookie.Value = t
-	cookie.Expires = time.Now().Add(time.Hour * 72)
-	cookie.HTTPOnly = true
-
-	c.Cookie(cookie)
+	setAuthCookie(c, t)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -149,11 +158,30 @@ func getUserID(c *fiber.Ctx) (uuid.UUID, error) {
 	return uuid.Parse(userIDStr)
 }
 
+func mapProject(project *ent.Project) map[string]interface{} {
+	return map[string]interface{}{
+		"id":      project.ID,
+		"name":    project.Name,
+		"user_id": project.UserID,
+	}
+}
+
+func mapProjects(projects []*ent.Project) []map[string]interface{} {
+	pp := make([]map[string]interface{}, len(projects))
+
+	for i, p := range projects {
+		pp[i] = mapProject(p)
+	}
+
+	return pp
+}
+
 func (s *Server) GetProjects(c *fiber.Ctx) error {
 	userID, err := getUserID(c)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
+	log.Printf("userId: %s\n", userID)
 	projects := s.DB.Project.Query().Where(project.UserIDEQ(userID)).AllX(c.Context())
 
 	return c.JSON(fiber.Map{
@@ -218,6 +246,7 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New())
+	app.Use(logger.New())
 
 	v1 := app.Group("/api/v1")
 

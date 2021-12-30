@@ -7,20 +7,19 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 
-function Register() {
+function Login() {
+  const router = useRouter();
   const onSubmit = (e: any) => {
     e.preventDefault();
 
-    const { email, password, password_confirmation, username } =
-      e.target.elements;
+    const { email, password } = e.target.elements;
 
-    fetch("/api/auth/register", {
+    fetch("/api/auth/login", {
       body: JSON.stringify({
         email: email.value,
         password: password.value,
-        password_confirmation: password_confirmation.value,
-        username: username.value,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -30,7 +29,7 @@ function Register() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then(console.log)
+      .then(() => router.push("/projects"))
       .catch((err) => {
         console.error(err);
       });
@@ -40,19 +39,9 @@ function Register() {
     <Box mt={8}>
       <Container>
         <Text fontSize="2xl" fontWeight="bold" mb={8}>
-          Register
+          Login
         </Text>
         <form onSubmit={onSubmit}>
-          <FormControl isRequired>
-            <FormLabel htmlFor="username">Username</FormLabel>
-            <Input
-              id="username"
-              name="username"
-              placeholder="Username"
-              required
-            />
-          </FormControl>
-
           <FormControl isRequired mt={4}>
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input
@@ -75,21 +64,8 @@ function Register() {
             />
           </FormControl>
 
-          <FormControl isRequired mt={4}>
-            <FormLabel htmlFor="password_confirmation">
-              Password Confirmation
-            </FormLabel>
-            <Input
-              id="password_confirmation"
-              name="password_confirmation"
-              placeholder="Password confirmation"
-              type="password"
-              required
-            />
-          </FormControl>
-
           <Button mt={8} colorScheme="blue" w="100%" type="submit">
-            Submit
+            Login
           </Button>
         </form>
       </Container>
@@ -97,4 +73,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Login;
