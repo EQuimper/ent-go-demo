@@ -57,6 +57,15 @@ function Projects(props) {
 }
 
 export async function getServerSideProps({ req }) {
+  if (!req.cookies.authorization) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   const response = await fetch("http://localhost:4000/api/v1/projects", {
     method: "GET",
     credentials: "include",
@@ -67,7 +76,6 @@ export async function getServerSideProps({ req }) {
     },
   });
   const { data } = await response.json();
-  console.log("data server", data);
 
   return {
     props: {
