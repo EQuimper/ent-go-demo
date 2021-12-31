@@ -30,5 +30,6 @@ export const useAuth = () => {
   return {
     data,
     isLoading,
+    isLogged: data !== null,
   };
 };

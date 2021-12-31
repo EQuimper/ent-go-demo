@@ -31,7 +31,6 @@ function Nav({ children }: Props) {
     }
   };
 
-  console.log("data", data);
   return (
     <Box>
       <Flex

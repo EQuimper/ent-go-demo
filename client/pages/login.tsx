@@ -13,6 +13,7 @@ import { useQueryClient } from "react-query";
 function Login() {
   const router = useRouter();
   const queryClient = useQueryClient();
+
   const onSubmit = (e: any) => {
     e.preventDefault();
 
@@ -80,6 +81,21 @@ function Login() {
       </Container>
     </Box>
   );
+}
+
+export function getServerSideProps({ req }) {
+  if (req.cookies.authorization) {
+    return {
+      redirect: {
+        destination: "/projects",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 }
 
 export default Login;

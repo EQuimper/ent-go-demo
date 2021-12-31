@@ -8,11 +8,21 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { useQueryClient } from "react-query";
+import { useAuth } from "../components/hooks/useAuth";
 
 function Register() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  // const { isLogged } = useAuth();
+
+  // useEffect(() => {
+  //   if (isLogged) {
+  //     router.push("/projects");
+  //   }
+  // }, []);
+
   const onSubmit = (e: any) => {
     e.preventDefault();
 
@@ -51,7 +61,9 @@ function Register() {
         </Text>
         <form onSubmit={onSubmit}>
           <FormControl isRequired>
-            <FormLabel htmlFor="username">Username</FormLabel>
+            <FormLabel id="username" htmlFor="username">
+              Username
+            </FormLabel>
             <Input
               id="username"
               name="username"
@@ -61,7 +73,9 @@ function Register() {
           </FormControl>
 
           <FormControl isRequired mt={4}>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel id="email" htmlFor="email">
+              Email
+            </FormLabel>
             <Input
               id="email"
               name="email"
@@ -72,7 +86,9 @@ function Register() {
           </FormControl>
 
           <FormControl isRequired mt={4}>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel id="password" htmlFor="password">
+              Password
+            </FormLabel>
             <Input
               id="password"
               name="password"
@@ -83,7 +99,10 @@ function Register() {
           </FormControl>
 
           <FormControl isRequired mt={4}>
-            <FormLabel htmlFor="password_confirmation">
+            <FormLabel
+              id="password_confirmation"
+              htmlFor="password_confirmation"
+            >
               Password Confirmation
             </FormLabel>
             <Input
@@ -102,6 +121,21 @@ function Register() {
       </Container>
     </Box>
   );
+}
+
+export function getServerSideProps({ req }) {
+  if (req.cookies.authorization) {
+    return {
+      redirect: {
+        destination: "/projects",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 }
 
 export default Register;
