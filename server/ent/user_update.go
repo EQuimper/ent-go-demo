@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -54,14 +53,14 @@ func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
 }
 
 // AddProjectIDs adds the "projects" edge to the Project entity by IDs.
-func (uu *UserUpdate) AddProjectIDs(ids ...uuid.UUID) *UserUpdate {
+func (uu *UserUpdate) AddProjectIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddProjectIDs(ids...)
 	return uu
 }
 
 // AddProjects adds the "projects" edges to the Project entity.
 func (uu *UserUpdate) AddProjects(p ...*Project) *UserUpdate {
-	ids := make([]uuid.UUID, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -80,14 +79,14 @@ func (uu *UserUpdate) ClearProjects() *UserUpdate {
 }
 
 // RemoveProjectIDs removes the "projects" edge to Project entities by IDs.
-func (uu *UserUpdate) RemoveProjectIDs(ids ...uuid.UUID) *UserUpdate {
+func (uu *UserUpdate) RemoveProjectIDs(ids ...int) *UserUpdate {
 	uu.mutation.RemoveProjectIDs(ids...)
 	return uu
 }
 
 // RemoveProjects removes "projects" edges to Project entities.
 func (uu *UserUpdate) RemoveProjects(p ...*Project) *UserUpdate {
-	ids := make([]uuid.UUID, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -195,7 +194,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   user.Table,
 			Columns: user.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeInt,
 				Column: user.FieldID,
 			},
 		},
@@ -244,7 +243,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: project.FieldID,
 				},
 			},
@@ -260,7 +259,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: project.FieldID,
 				},
 			},
@@ -279,7 +278,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: project.FieldID,
 				},
 			},
@@ -333,14 +332,14 @@ func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
 }
 
 // AddProjectIDs adds the "projects" edge to the Project entity by IDs.
-func (uuo *UserUpdateOne) AddProjectIDs(ids ...uuid.UUID) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddProjectIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddProjectIDs(ids...)
 	return uuo
 }
 
 // AddProjects adds the "projects" edges to the Project entity.
 func (uuo *UserUpdateOne) AddProjects(p ...*Project) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -359,14 +358,14 @@ func (uuo *UserUpdateOne) ClearProjects() *UserUpdateOne {
 }
 
 // RemoveProjectIDs removes the "projects" edge to Project entities by IDs.
-func (uuo *UserUpdateOne) RemoveProjectIDs(ids ...uuid.UUID) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveProjectIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.RemoveProjectIDs(ids...)
 	return uuo
 }
 
 // RemoveProjects removes "projects" edges to Project entities.
 func (uuo *UserUpdateOne) RemoveProjects(p ...*Project) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(p))
+	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -481,7 +480,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Table:   user.Table,
 			Columns: user.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeInt,
 				Column: user.FieldID,
 			},
 		},
@@ -547,7 +546,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: project.FieldID,
 				},
 			},
@@ -563,7 +562,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: project.FieldID,
 				},
 			},
@@ -582,7 +581,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: project.FieldID,
 				},
 			},

@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
-
 	"entgo.io/ent"
 )
 
@@ -34,13 +32,13 @@ type ProjectMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *uuid.UUID
+	id            *int
 	created_at    *time.Time
 	updated_at    *time.Time
 	name          *string
 	description   *string
 	clearedFields map[string]struct{}
-	user          *uuid.UUID
+	user          *int
 	cleareduser   bool
 	done          bool
 	oldValue      func(context.Context) (*Project, error)
@@ -67,7 +65,7 @@ func newProjectMutation(c config, op Op, opts ...projectOption) *ProjectMutation
 }
 
 // withProjectID sets the ID field of the mutation.
-func withProjectID(id uuid.UUID) projectOption {
+func withProjectID(id int) projectOption {
 	return func(m *ProjectMutation) {
 		var (
 			err   error
@@ -117,15 +115,9 @@ func (m ProjectMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of Project entities.
-func (m *ProjectMutation) SetID(id uuid.UUID) {
-	m.id = &id
-}
-
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ProjectMutation) ID() (id uuid.UUID, exists bool) {
+func (m *ProjectMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -290,12 +282,12 @@ func (m *ProjectMutation) ResetDescription() {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *ProjectMutation) SetUserID(u uuid.UUID) {
-	m.user = &u
+func (m *ProjectMutation) SetUserID(i int) {
+	m.user = &i
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *ProjectMutation) UserID() (r uuid.UUID, exists bool) {
+func (m *ProjectMutation) UserID() (r int, exists bool) {
 	v := m.user
 	if v == nil {
 		return
@@ -306,7 +298,7 @@ func (m *ProjectMutation) UserID() (r uuid.UUID, exists bool) {
 // OldUserID returns the old "user_id" field's value of the Project entity.
 // If the Project object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProjectMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *ProjectMutation) OldUserID(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -338,7 +330,7 @@ func (m *ProjectMutation) UserCleared() bool {
 // UserIDs returns the "user" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UserID instead. It exists only for internal usage by the builders.
-func (m *ProjectMutation) UserIDs() (ids []uuid.UUID) {
+func (m *ProjectMutation) UserIDs() (ids []int) {
 	if id := m.user; id != nil {
 		ids = append(ids, *id)
 	}
@@ -461,7 +453,7 @@ func (m *ProjectMutation) SetField(name string, value ent.Value) error {
 		m.SetDescription(v)
 		return nil
 	case project.FieldUserID:
-		v, ok := value.(uuid.UUID)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -474,13 +466,16 @@ func (m *ProjectMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *ProjectMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *ProjectMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -625,15 +620,15 @@ type UserMutation struct {
 	config
 	op              Op
 	typ             string
-	id              *uuid.UUID
+	id              *int
 	created_at      *time.Time
 	updated_at      *time.Time
 	username        *string
 	email           *string
 	password        *string
 	clearedFields   map[string]struct{}
-	projects        map[uuid.UUID]struct{}
-	removedprojects map[uuid.UUID]struct{}
+	projects        map[int]struct{}
+	removedprojects map[int]struct{}
 	clearedprojects bool
 	done            bool
 	oldValue        func(context.Context) (*User, error)
@@ -660,7 +655,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id uuid.UUID) userOption {
+func withUserID(id int) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -710,15 +705,9 @@ func (m UserMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of User entities.
-func (m *UserMutation) SetID(id uuid.UUID) {
-	m.id = &id
-}
-
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id uuid.UUID, exists bool) {
+func (m *UserMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -906,9 +895,9 @@ func (m *UserMutation) ResetPassword() {
 }
 
 // AddProjectIDs adds the "projects" edge to the Project entity by ids.
-func (m *UserMutation) AddProjectIDs(ids ...uuid.UUID) {
+func (m *UserMutation) AddProjectIDs(ids ...int) {
 	if m.projects == nil {
-		m.projects = make(map[uuid.UUID]struct{})
+		m.projects = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.projects[ids[i]] = struct{}{}
@@ -926,9 +915,9 @@ func (m *UserMutation) ProjectsCleared() bool {
 }
 
 // RemoveProjectIDs removes the "projects" edge to the Project entity by IDs.
-func (m *UserMutation) RemoveProjectIDs(ids ...uuid.UUID) {
+func (m *UserMutation) RemoveProjectIDs(ids ...int) {
 	if m.removedprojects == nil {
-		m.removedprojects = make(map[uuid.UUID]struct{})
+		m.removedprojects = make(map[int]struct{})
 	}
 	for i := range ids {
 		delete(m.projects, ids[i])
@@ -937,7 +926,7 @@ func (m *UserMutation) RemoveProjectIDs(ids ...uuid.UUID) {
 }
 
 // RemovedProjects returns the removed IDs of the "projects" edge to the Project entity.
-func (m *UserMutation) RemovedProjectsIDs() (ids []uuid.UUID) {
+func (m *UserMutation) RemovedProjectsIDs() (ids []int) {
 	for id := range m.removedprojects {
 		ids = append(ids, id)
 	}
@@ -945,7 +934,7 @@ func (m *UserMutation) RemovedProjectsIDs() (ids []uuid.UUID) {
 }
 
 // ProjectsIDs returns the "projects" edge IDs in the mutation.
-func (m *UserMutation) ProjectsIDs() (ids []uuid.UUID) {
+func (m *UserMutation) ProjectsIDs() (ids []int) {
 	for id := range m.projects {
 		ids = append(ids, id)
 	}

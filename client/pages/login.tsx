@@ -8,9 +8,11 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useQueryClient } from "react-query";
 
 function Login() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const onSubmit = (e: any) => {
     e.preventDefault();
 
@@ -29,7 +31,10 @@ function Login() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then(() => router.push("/projects"))
+      .then(() => {
+        router.push("/projects");
+        queryClient.invalidateQueries("me");
+      })
       .catch((err) => {
         console.error(err);
       });
@@ -43,7 +48,9 @@ function Login() {
         </Text>
         <form onSubmit={onSubmit}>
           <FormControl isRequired mt={4}>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel id="email" htmlFor="email">
+              Email
+            </FormLabel>
             <Input
               id="email"
               name="email"
@@ -54,7 +61,9 @@ function Login() {
           </FormControl>
 
           <FormControl isRequired mt={4}>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel id="password" htmlFor="password">
+              Password
+            </FormLabel>
             <Input
               id="password"
               name="password"

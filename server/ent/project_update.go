@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // ProjectUpdate is the builder for updating Project entities.
@@ -63,8 +62,8 @@ func (pu *ProjectUpdate) ClearDescription() *ProjectUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (pu *ProjectUpdate) SetUserID(u uuid.UUID) *ProjectUpdate {
-	pu.mutation.SetUserID(u)
+func (pu *ProjectUpdate) SetUserID(i int) *ProjectUpdate {
+	pu.mutation.SetUserID(i)
 	return pu
 }
 
@@ -172,7 +171,7 @@ func (pu *ProjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   project.Table,
 			Columns: project.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeInt,
 				Column: project.FieldID,
 			},
 		},
@@ -220,7 +219,7 @@ func (pu *ProjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: user.FieldID,
 				},
 			},
@@ -236,7 +235,7 @@ func (pu *ProjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: user.FieldID,
 				},
 			},
@@ -298,8 +297,8 @@ func (puo *ProjectUpdateOne) ClearDescription() *ProjectUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (puo *ProjectUpdateOne) SetUserID(u uuid.UUID) *ProjectUpdateOne {
-	puo.mutation.SetUserID(u)
+func (puo *ProjectUpdateOne) SetUserID(i int) *ProjectUpdateOne {
+	puo.mutation.SetUserID(i)
 	return puo
 }
 
@@ -414,7 +413,7 @@ func (puo *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err e
 			Table:   project.Table,
 			Columns: project.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeInt,
 				Column: project.FieldID,
 			},
 		},
@@ -479,7 +478,7 @@ func (puo *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: user.FieldID,
 				},
 			},
@@ -495,7 +494,7 @@ func (puo *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
+					Type:   field.TypeInt,
 					Column: user.FieldID,
 				},
 			},

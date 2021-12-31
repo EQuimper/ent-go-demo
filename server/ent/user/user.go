@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent"
-	"github.com/google/uuid"
 )
 
 const (
@@ -77,6 +76,4 @@ var (
 	EmailValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
-	// DefaultID holds the default value on creation for the "id" field.
-	DefaultID func() uuid.UUID
 )

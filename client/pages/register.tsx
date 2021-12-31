@@ -7,8 +7,12 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { useQueryClient } from "react-query";
 
 function Register() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const onSubmit = (e: any) => {
     e.preventDefault();
 
@@ -30,7 +34,10 @@ function Register() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then(console.log)
+      .then(() => {
+        queryClient.invalidateQueries("me");
+        router.push("/projects");
+      })
       .catch((err) => {
         console.error(err);
       });

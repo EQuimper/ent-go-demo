@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { ChakraProvider } from "@chakra-ui/react";
+import { Box, ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Nav from "../components/common/Nav";
 
@@ -11,7 +11,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <ChakraProvider>
         <Nav>
-          <Component {...pageProps} />
+          <Box minHeight="100vh">
+            <Component {...pageProps} />
+          </Box>
         </Nav>
       </ChakraProvider>
     </QueryClientProvider>

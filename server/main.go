@@ -14,7 +14,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -150,12 +149,26 @@ func createJWTToken(u *ent.User) (string, error) {
 	return token.SignedString([]byte("mysecret"))
 }
 
-func getUserID(c *fiber.Ctx) (uuid.UUID, error) {
+// func getUserID(c *fiber.Ctx) (uuid.UUID, error) {
+// 	token := c.Locals("user").(*jwt.Token)
+// 	claims := token.Claims.(jwt.MapClaims)
+// 	userIDStr := claims["id"].(string)
+
+// 	return uuid.Parse(userIDStr)
+// }
+
+func getUserID(c *fiber.Ctx) (int, error) {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	userIDStr := claims["id"].(string)
+	userIDStr, ok := claims["id"].(float64)
 
-	return uuid.Parse(userIDStr)
+	if !ok {
+		return 0, fmt.Errorf("can't get claims id")
+	}
+
+	userID := int(userIDStr)
+
+	return userID, nil
 }
 
 func mapProject(project *ent.Project) map[string]interface{} {
@@ -176,12 +189,28 @@ func mapProjects(projects []*ent.Project) []map[string]interface{} {
 	return pp
 }
 
+func (s *Server) Me(c *fiber.Ctx) error {
+	userID, err := getUserID(c)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	user, err := s.DB.User.Get(c.Context(), userID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(fiber.Map{
+		"data": user,
+	})
+}
+
 func (s *Server) GetProjects(c *fiber.Ctx) error {
 	userID, err := getUserID(c)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-	log.Printf("userId: %s\n", userID)
+
 	projects := s.DB.Project.Query().Where(project.UserIDEQ(userID)).AllX(c.Context())
 
 	return c.JSON(fiber.Map{
@@ -226,6 +255,20 @@ func (s *Server) CreateProject(c *fiber.Ctx) error {
 	})
 }
 
+func (s *Server) Logout(c *fiber.Ctx) error {
+	cookie := new(fiber.Cookie)
+	cookie.Name = "authorization"
+	cookie.HTTPOnly = true
+	cookie.Value = "deleted"
+	cookie.Expires = time.Now().Add(-3 * time.Second)
+	cookie.SameSite = "lax"
+	cookie.Domain = "localhost"
+
+	c.Cookie(cookie)
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
 func main() {
 	client, err := ent.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -254,9 +297,12 @@ func main() {
 
 	auth.Post("/register", server.Register)
 	auth.Post("/login", server.Login)
+	auth.Post("/logout", Protected(), server.Logout)
 
 	v1.Get("/projects", Protected(), server.GetProjects)
 	v1.Post("/projects", Protected(), server.CreateProject)
+
+	v1.Get("/me", Protected(), server.Me)
 
 	log.Fatal(app.Listen(":4000"))
 	//

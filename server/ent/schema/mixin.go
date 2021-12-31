@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
-	"github.com/google/uuid"
 )
 
 type DefaultMixin struct {
@@ -15,7 +14,7 @@ type DefaultMixin struct {
 
 func (DefaultMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).Unique().Default(uuid.New).Immutable(),
+		// field.UUID("id", uuid.UUID{}).Unique().Default(uuid.New),
 	}
 }
 

@@ -17,23 +17,36 @@ async function getProjects() {
 }
 
 function Projects(props) {
-  const { data } = useQuery("projects", getProjects, {
+  const { data, isLoading } = useQuery("projects", getProjects, {
     initialData: props.projects,
   });
 
+  if (isLoading) {
+    return null;
+  }
+
   // console.log("data client", data);
   return (
-    <Box>
-      <Container mt={8}>
+    <Box bg="gray.50" minHeight="100vh" pt={8}>
+      <Container>
         <Text fontSize="2xl" fontWeight="bold">
           My Projects
         </Text>
 
         <List>
           {data.map((project) => (
-            <ListItem key={project.id}>
+            <ListItem
+              key={project.id}
+              boxShadow="base"
+              borderRadius="lg"
+              mt={4}
+            >
               <Box p={6}>
-                <Text>{project.name}</Text>
+                <Text fontSize="lg" fontWeight="medium">
+                  {project.name}
+                </Text>
+
+                <Text color="gray.300">{project.description ?? ""}</Text>
               </Box>
             </ListItem>
           ))}

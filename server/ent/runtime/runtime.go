@@ -7,8 +7,6 @@ import (
 	"ent-go-demo/ent/schema"
 	"ent-go-demo/ent/user"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -16,8 +14,6 @@ import (
 // to their package variables.
 func init() {
 	projectMixin := schema.Project{}.Mixin()
-	projectMixinFields0 := projectMixin[0].Fields()
-	_ = projectMixinFields0
 	projectMixinFields1 := projectMixin[1].Fields()
 	_ = projectMixinFields1
 	projectFields := schema.Project{}.Fields()
@@ -36,15 +32,9 @@ func init() {
 	projectDescName := projectFields[0].Descriptor()
 	// project.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	project.NameValidator = projectDescName.Validators[0].(func(string) error)
-	// projectDescID is the schema descriptor for id field.
-	projectDescID := projectMixinFields0[0].Descriptor()
-	// project.DefaultID holds the default value on creation for the id field.
-	project.DefaultID = projectDescID.Default.(func() uuid.UUID)
 	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]
-	userMixinFields0 := userMixin[0].Fields()
-	_ = userMixinFields0
 	userMixinFields1 := userMixin[1].Fields()
 	_ = userMixinFields1
 	userFields := schema.User{}.Fields()
@@ -100,10 +90,6 @@ func init() {
 			return nil
 		}
 	}()
-	// userDescID is the schema descriptor for id field.
-	userDescID := userMixinFields0[0].Descriptor()
-	// user.DefaultID holds the default value on creation for the id field.
-	user.DefaultID = userDescID.Default.(func() uuid.UUID)
 }
 
 const (
