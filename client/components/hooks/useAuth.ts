@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { useQuery } from "react-query";
-import { useUserStore } from "../stores/user";
 
 async function getUser() {
   const res = await fetch("/api/me", {
