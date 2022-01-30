@@ -1,6 +1,12 @@
 import { Box, Container, List, ListItem, Text } from "@chakra-ui/react";
 import { useQuery } from "react-query";
-import * as cookie from "cookie";
+
+interface Project {
+  id: number;
+  name: string;
+  description?: string;
+  created_at: string;
+}
 
 async function getProjects() {
   const res = await fetch("/api/projects", {
@@ -16,8 +22,12 @@ async function getProjects() {
   return data;
 }
 
-function Projects(props) {
-  const { data, isLoading } = useQuery("projects", getProjects, {
+interface Props {
+  projects?: Project[];
+}
+
+function Projects(props: Props) {
+  const { data, isLoading } = useQuery<Project[]>("projects", getProjects, {
     initialData: props.projects,
   });
 
@@ -25,7 +35,8 @@ function Projects(props) {
     return null;
   }
 
-  // console.log("data client", data);
+  const projects = data ?? [];
+
   return (
     <Box bg="gray.50" minHeight="100vh" pt={8}>
       <Container>
@@ -34,7 +45,7 @@ function Projects(props) {
         </Text>
 
         <List>
-          {data.map((project) => (
+          {projects.map((project) => (
             <ListItem
               key={project.id}
               boxShadow="base"
